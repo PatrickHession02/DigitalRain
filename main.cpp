@@ -1,49 +1,27 @@
 #include <iostream>
-#include <random>
-#include <vector>
-#include <chrono>
-#include <thread>
-#include <windows.h>  
-
-const int flipsPerLine = 5;
-const int sleepTime = 100;
-
-// Character set for the rain
-const std::string characters = "1234567890qwertyuiopasdfghjklzxcvbnm,./';[]!@#$%^&*()-=_+";
-
-// Function to get the width of the console window
-int getConsoleWidth() {
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-    return csbi.srWindow.Right - csbi.srWindow.Left + 1;
-}
+#include "Droplet.h" 
 
 int main() {
-
-    int width = getConsoleWidth();
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(0, characters.size() - 1);
-
-    std::vector<bool> switches(width, false);  
-
+   
+    Droplet droplet(40);
+    const int SCREEN_WIDTH = 80;
+    const int SCREEN_HEIGHT = 24;
     
-    system("Color 0A");  
-
     while (true) {
-        for (int i = 0; i < width; ++i) {
-            std::cout << (switches[i] ? characters[dist(gen)] : ' ');
-        }
-        std::cout << std::endl; 
+        
+        std::cout << "\033[2J\033[1;1H";
 
-      
-        for (int i = 0; i < flipsPerLine; ++i) {
-            switches[dist(gen)] = !switches[dist(gen)];
+       
+        droplet.fall();
+        droplet.display();
+
+       
+        if (droplet.isAtBottom()) {
+            droplet = Droplet(rand() % SCREEN_WIDTH + 1);
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
-    }
+        std::cout.flush();
+        usleep(100000); 
 
     return 0;
 }
