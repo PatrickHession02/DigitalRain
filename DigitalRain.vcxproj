@@ -128,10 +128,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Droplet.cpp" />
+    <ClCompile Include="MatrixRain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Droplet.h" />
+    <ClInclude Include="MatrixRain.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
