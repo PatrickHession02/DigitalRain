@@ -1,15 +1,23 @@
-// main.cpp
 #include "MatrixRain.h"
 
 int main() {
-    MatrixRain matrixRain; // Create MatrixRain object without specifying rows and columns
+    // Seed the random number generator
+    srand(static_cast<unsigned int>(time(nullptr)));
 
-    matrixRain.start();
+    // Define the width and height of the matrix
+    const int width = 80; // Adjust the width as needed
+    const int height = 25; // Adjust the height as needed
 
-    std::cout << "Press any key to stop the Matrix Rain..." << std::endl;
-    std::cin.get(); // Wait for user input
+    while (true) {
+        printMatrix(width, height);
 
-    matrixRain.stop();
+        // Sleep for a short period
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        // Clear the screen
+        std::system("cls"); // For UNIX-like systems
+        // std::system("cls"); // For Windows systems
+    }
 
     return 0;
 }

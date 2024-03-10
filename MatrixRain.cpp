@@ -1,91 +1,80 @@
-// MatrixRain.cpp
 #include "MatrixRain.h"
+#include <iostream>
+#include <thread>
+#include <vector>
+#include <random>
 
-#ifdef _WIN32
-int getWindowWidth() {
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-    return csbi.srWindow.Right - csbi.srWindow.Left + 1;
+char getRandomChar() {
+    static const char charset[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+
+    static const int max_index = sizeof(charset) - 1;
+    return charset[rand() % max_index];
 }
 
-int getWindowHeight() {
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-    return csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-}
-#else
-int getWindowWidth() {
-    struct winsize size;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
-    return size.ws_col;
-}
+void printDrop(int width, int height, const std::string& green_color, const std::string& reset_color) {
+    // Generate a random starting position for the drop
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(0, width - 1);
+    int x = dis(gen);
 
-int getWindowHeight() {
-    struct winsize size;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
-    return size.ws_row;
-}
-#endif
+    // Generate a random speed for the drop
+    std::uniform_int_distribution<int> speed_dis(50, 150);
+    int speed = speed_dis(gen);
 
-void MatrixRain::start() {
-    initializeMatrix();
-    rainThread = std::thread(&MatrixRain::rainDrops, this);
-}
+    // Generate a random length for the drop
+    std::uniform_int_distribution<int> length_dis(5, height); // Adjust as needed
+    int length = length_dis(gen);
 
-void MatrixRain::stop() {
-    running = false;
-    if (rainThread.joinable())
-        rainThread.join();
-}
+    // Print the drop's animation
+    for (int frame = 0; frame < length + 5; ++frame) {
+        // Only print the drop if it's within the visible area of the screen
+        if (frame >= 0 && frame < length && x >= 0 && x < width) {
+            // Move the cursor to the starting position
+            std::cout << "\033[" << frame << ";" << x + 1 << "H";
 
-void MatrixRain::initializeMatrix() {
-    rows = getWindowHeight();
-    columns = getWindowWidth();
-    matrix.resize(rows, std::vector<char>(columns, ' '));
-}
-
-void MatrixRain::draw() {
-    // Move cursor to the top-left corner
-    std::cout << "\033[H";
-    std::cout << "\033[2J";
-
-    // Set color to green
-    std::cout << "\033[32m";
-
-    // Draw matrix
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < columns; ++j) {
-            std::cout << matrix[i][j];
-        }
-        std::cout << std::endl;
-    }
-
-    // Reset color
-    std::cout << "\033[0m";
-}
-void MatrixRain::rainDrops() {
-    while (running) {
-        for (int j = 0; j < columns; ++j) {
-            if (rand() % 20 == 1) {
-                int length = rand() % 10 + 3; // Randomize length of raindrop
-                int start = rand() % (rows - length); // Random starting position
-                for (int k = start; k < start + length; ++k) {
-                    matrix[k][j] = rand() % 94 + 33; // ASCII characters from '!' to '~'
-                }
-            }
-            else {
-                for (int i = 0; i < rows; ++i) {
-                    if (matrix[i][j] != ' ') {
-                        matrix[i][j] = ' ';
-                        if (i + 1 < rows) {
-                            matrix[i + 1][j] = rand() % 94 + 33;
-                        }
-                    }
-                }
-            }
+            // Print the drop
+            std::cout << green_color << getRandomChar() << reset_color << std::flush;
         }
 
-        draw(); // Redraw after updating each column
-        std::this_thread::sleep_for(std::chrono::milliseconds(150)); // Adjust speed
+        // Sleep for the specified speed
+        std::this_thread::sleep_for(std::chrono::milliseconds(speed));
+
+        // Clear the character at the current position
+        if (frame >= 0 && frame < length && x >= 0 && x < width) {
+            std::cout << "\033[" << frame << ";" << x + 1 << "H" << green_color << " " << reset_color; // Clear character
+        }
     }
+}
+
+void printMatrix(int width, int height) {
+    // ANSI escape code for green text
+    const std::string green_color = "\033[32m";
+    // ANSI escape code to reset text color
+   
+
+    // Number of drops
+    const int num_drops = 10; // Adjust as needed
+
+    // Vector to store threads
+    std::vector<std::thread> threads;
+
+    // Start threads for each drop
+    for (int i = 0; i < num_drops; ++i) {
+        // Emplace new threads to the vector
+        threads.emplace_back(printDrop, width, height, std::ref(green_color));
+        // Sleep for a random duration before starting the next thread
+        std::this_thread::sleep_for(std::chrono::milliseconds(std::rand() % 500));
+    }
+
+    // Join threads
+    for (auto& thread : threads) {
+        thread.join();
+    }
+
+    // Move the cursor to the last position to avoid scrolling
+    std::cout << "\033[" << height << ";0H";
 }
