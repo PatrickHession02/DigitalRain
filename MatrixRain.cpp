@@ -1,80 +1,95 @@
-#include "MatrixRain.h"
-#include <iostream>
-#include <thread>
-#include <vector>
-#include <random>
 
-char getRandomChar() {
-    static const char charset[] =
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
+/*
+ _ __                       _    ,
+' )  )    _/_          /   ' )  /
+ /--'__.  /  __  o _. /_    /--/ _  _   _   o __ ____
+/   (_/|_<__/ (_<_(__/ <_  /  (_</_/_)_/_)_<_(_)/ / <_
+*/
+#include "matrix_fall.h"
 
-    static const int max_index = sizeof(charset) - 1;
-    return charset[rand() % max_index];
+MatrixFall::MatrixFall() {
+    xPosition = 0;
 }
 
-void printDrop(int width, int height, const std::string& green_color, const std::string& reset_color) {
-    // Generate a random starting position for the drop
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dis(0, width - 1);
-    int x = dis(gen);
+MatrixFall::MatrixFall(int x) {
+    xPosition = x;
+}
 
-    // Generate a random speed for the drop
-    std::uniform_int_distribution<int> speed_dis(50, 150);
-    int speed = speed_dis(gen);
+MatrixFall::MatrixFall(const MatrixFall& other) {
+    xPosition = other.xPosition;
+    Rain = other.Rain;
+}
 
-    // Generate a random length for the drop
-    std::uniform_int_distribution<int> length_dis(5, height); // Adjust as needed
-    int length = length_dis(gen);
+MatrixFall::~MatrixFall() {}
 
-    // Print the drop's animation
-    for (int frame = 0; frame < length + 5; ++frame) {
-        // Only print the drop if it's within the visible area of the screen
-        if (frame >= 0 && frame < length && x >= 0 && x < width) {
-            // Move the cursor to the starting position
-            std::cout << "\033[" << frame << ";" << x + 1 << "H";
+MatrixFall& MatrixFall::operator=(const MatrixFall& other) {
+    if (this != &other) {
+        xPosition = other.xPosition;
+        Rain = other.Rain;
+    }
+    return *this;
+}
 
-            // Print the drop
-            std::cout << green_color << getRandomChar() << reset_color << std::flush;
-        }
+MatrixFall::MatrixFall(int x, std::vector<std::string> rain) {
+    xPosition = x;
+    Rain = rain;
+}
 
-        // Sleep for the specified speed
-        std::this_thread::sleep_for(std::chrono::milliseconds(speed));
+int MatrixFall::getXposition() const {
+    return xPosition;
+}
 
-        // Clear the character at the current position
-        if (frame >= 0 && frame < length && x >= 0 && x < width) {
-            std::cout << "\033[" << frame << ";" << x + 1 << "H" << green_color << " " << reset_color; // Clear character
-        }
+void MatrixFall::setRain(std::vector<std::string> rain) {
+    Rain = rain;
+}
+
+std::vector<std::string> MatrixFall::getRain() const {
+    return Rain;
+}
+
+void MatrixFall::setXposition(int x) {
+    xPosition = x;
+}
+
+void MatrixFall::start() {
+    while (true) {
+        raining();
+
     }
 }
 
-void printMatrix(int width, int height) {
-    // ANSI escape code for green text
-    const std::string green_color = "\033[32m";
-    // ANSI escape code to reset text color
-   
+void MatrixFall::raining() {
+    // Clear the console screen
+    system("cls"); // This works on Windows, you may need to use different commands on other operating systems
 
-    // Number of drops
-    const int num_drops = 10; // Adjust as needed
-
-    // Vector to store threads
-    std::vector<std::thread> threads;
-
-    // Start threads for each drop
-    for (int i = 0; i < num_drops; ++i) {
-        // Emplace new threads to the vector
-        threads.emplace_back(printDrop, width, height, std::ref(green_color));
-        // Sleep for a random duration before starting the next thread
-        std::this_thread::sleep_for(std::chrono::milliseconds(std::rand() % 500));
+    
+    std::string newDrop;
+    for (int i = 0; i < 10; ++i) {
+        if (rand() % 100 < 20)  
+            newDrop += (char)(rand() % 94 + 33); // ASCII characters from '!' to '~'
+        else
+            newDrop += ' ';
     }
+    if (Rain.size() >= 20) // Limit the number of raindrops
+        Rain.erase(Rain.begin());
+    Rain.push_back(newDrop);
 
-    // Join threads
-    for (auto& thread : threads) {
-        thread.join();
-    }
+    // Print the raindrops
+    goToXY(xPosition, 0);
+    for (const auto& drop : Rain)
+        std::cout << drop << std::endl;
+}
 
-    // Move the cursor to the last position to avoid scrolling
-    std::cout << "\033[" << height << ";0H";
+void MatrixFall::goToXY(int x, int y) {
+    COORD coord;
+    coord.X = x;
+    coord.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+
+std::ostream& operator<<(std::ostream& output, const MatrixFall& m) {
+    for (const auto& drop : m.getRain())
+        output << drop << std::endl;
+    return output;
 }

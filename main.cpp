@@ -1,23 +1,20 @@
-#include "MatrixRain.h"
+/*
+ _ __                       _    ,
+' )  )    _/_          /   ' )  /
+ /--'__.  /  __  o _. /_    /--/ _  _   _   o __ ____
+/   (_/|_<__/ (_<_(__/ <_  /  (_</_/_)_/_)_<_(_)/ / <_
+*/
+#include <iostream>
+#include "matrix_fall.h"
 
 int main() {
-    // Seed the random number generator
-    srand(static_cast<unsigned int>(time(nullptr)));
+    std::system("COLOR 02");
 
-    // Define the width and height of the matrix
-    const int width = 80; // Adjust the width as needed
-    const int height = 25; // Adjust the height as needed
+    Sleep(2500);
+    std::system("CLS");
 
-    while (true) {
-        printMatrix(width, height);
-
-        // Sleep for a short period
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-        // Clear the screen
-        std::system("cls"); // For UNIX-like systems
-        // std::system("cls"); // For Windows systems
+    while (1) {
+        MatrixFall m;
+        m.raining();
     }
-
-    return 0;
 }
