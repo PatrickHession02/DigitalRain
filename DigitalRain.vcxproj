@@ -129,8 +129,10 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatrixRain.cpp" />
+    <ClCompile Include="MatrixRainTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MatrixRainTest.h" />
     <ClInclude Include="matrix_fall.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

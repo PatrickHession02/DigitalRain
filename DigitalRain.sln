@@ -5,6 +5,8 @@ VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DigitalRain", "DigitalRain.vcxproj", "{66B1CD60-5E73-460A-A8E3-A43FDCAB4A89}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VectorTestFORDR", "..\VectorTestFORDR\VectorTestFORDR.vcxproj", "{8726847D-44D5-4AAA-A59E-0537BC92D96D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{66B1CD60-5E73-460A-A8E3-A43FDCAB4A89}.Release|x64.Build.0 = Release|x64
 		{66B1CD60-5E73-460A-A8E3-A43FDCAB4A89}.Release|x86.ActiveCfg = Release|Win32
 		{66B1CD60-5E73-460A-A8E3-A43FDCAB4A89}.Release|x86.Build.0 = Release|Win32
+		{8726847D-44D5-4AAA-A59E-0537BC92D96D}.Debug|x64.ActiveCfg = Debug|x64
+		{8726847D-44D5-4AAA-A59E-0537BC92D96D}.Debug|x64.Build.0 = Debug|x64
+		{8726847D-44D5-4AAA-A59E-0537BC92D96D}.Debug|x86.ActiveCfg = Debug|Win32
+		{8726847D-44D5-4AAA-A59E-0537BC92D96D}.Debug|x86.Build.0 = Debug|Win32
+		{8726847D-44D5-4AAA-A59E-0537BC92D96D}.Release|x64.ActiveCfg = Release|x64
+		{8726847D-44D5-4AAA-A59E-0537BC92D96D}.Release|x64.Build.0 = Release|x64
+		{8726847D-44D5-4AAA-A59E-0537BC92D96D}.Release|x86.ActiveCfg = Release|Win32
+		{8726847D-44D5-4AAA-A59E-0537BC92D96D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,95 +1,63 @@
-
-/*
- _ __                       _    ,
-' )  )    _/_          /   ' )  /
- /--'__.  /  __  o _. /_    /--/ _  _   _   o __ ____
-/   (_/|_<__/ (_<_(__/ <_  /  (_</_/_)_/_)_<_(_)/ / <_
-*/
 #include "matrix_fall.h"
+#include <iostream>
+#include <cstdlib>
+#include <chrono>
+#include <thread>
+#include <windows.h>
 
-MatrixFall::MatrixFall() {
-    xPosition = 0;
-}
+namespace MatrixFall {
 
-MatrixFall::MatrixFall(int x) {
-    xPosition = x;
-}
-
-MatrixFall::MatrixFall(const MatrixFall& other) {
-    xPosition = other.xPosition;
-    Rain = other.Rain;
-}
-
-MatrixFall::~MatrixFall() {}
-
-MatrixFall& MatrixFall::operator=(const MatrixFall& other) {
-    if (this != &other) {
-        xPosition = other.xPosition;
-        Rain = other.Rain;
+    std::mutex mtx;
+    const int MATRIX_WIDTH = 80;
+    const int MATRIX_HEIGHT = 25;
+    const int NUM_DROPS = 50;
+    const int ANIMATION_SPEED_MS = 100;
+    char getRandomChar() {
+        return static_cast<char>('!' + rand() % 94);
     }
-    return *this;
-}
 
-MatrixFall::MatrixFall(int x, std::vector<std::string> rain) {
-    xPosition = x;
-    Rain = rain;
-}
-
-int MatrixFall::getXposition() const {
-    return xPosition;
-}
-
-void MatrixFall::setRain(std::vector<std::string> rain) {
-    Rain = rain;
-}
-
-std::vector<std::string> MatrixFall::getRain() const {
-    return Rain;
-}
-
-void MatrixFall::setXposition(int x) {
-    xPosition = x;
-}
-
-void MatrixFall::start() {
-    while (true) {
-        raining();
-
+    void printMatrixWithRaindrop(const std::vector<std::vector<char>>& matrix) {
+        try {
+            for (const auto& row : matrix) {
+                std::lock_guard<std::mutex> guard(mtx);
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 5);
+                for (char pixel : row) {
+                    std::cout << pixel;
+                }
+            }
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Exception occurred while printing matrix: " << e.what() << std::endl;
+        }
     }
-}
 
-void MatrixFall::raining() {
-    // Clear the console screen
-    system("cls"); // This works on Windows, you may need to use different commands on other operating systems
+    void simulateRaindrop(int raindropColumn) {
+        try {
+            std::vector<std::vector<char>> matrix(MATRIX_HEIGHT, std::vector<char>(MATRIX_WIDTH, ' '));
 
-    
-    std::string newDrop;
-    for (int i = 0; i < 10; ++i) {
-        if (rand() % 100 < 20)  
-            newDrop += (char)(rand() % 94 + 33); // ASCII characters from '!' to '~'
-        else
-            newDrop += ' ';
+            int raindropLength = 5 + rand() % 10;
+
+            for (int row = 0; row < raindropLength; ++row) {
+                int currentRow = row;
+                while (currentRow >= 0 && currentRow < MATRIX_HEIGHT) {
+                    matrix[currentRow][raindropColumn] = getRandomChar();
+                    ++currentRow;
+                }
+
+                printMatrixWithRaindrop(matrix);
+
+                currentRow = row;
+                while (currentRow >= 0 && currentRow < MATRIX_HEIGHT) {
+                    matrix[currentRow][raindropColumn] = ' ';
+                    ++currentRow;
+                }
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(ANIMATION_SPEED_MS));
+            }
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Exception occurred during raindrop simulation: " << e.what() << std::endl;
+        }
     }
-    if (Rain.size() >= 20) // Limit the number of raindrops
-        Rain.erase(Rain.begin());
-    Rain.push_back(newDrop);
 
-    // Print the raindrops
-    goToXY(xPosition, 0);
-    for (const auto& drop : Rain)
-        std::cout << drop << std::endl;
-}
-
-void MatrixFall::goToXY(int x, int y) {
-    COORD coord;
-    coord.X = x;
-    coord.Y = y;
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-}
-
-
-std::ostream& operator<<(std::ostream& output, const MatrixFall& m) {
-    for (const auto& drop : m.getRain())
-        output << drop << std::endl;
-    return output;
-}
+} // namespace MatrixFall
