@@ -12,25 +12,13 @@ namespace MatrixFall {
     const int MATRIX_HEIGHT = 25;
     const int NUM_DROPS = 50;
     const int ANIMATION_SPEED_MS = 100;
+
+    // Function to get a random character
     char getRandomChar() {
         return static_cast<char>('!' + rand() % 94);
     }
 
-    void printMatrixWithRaindrop(const std::vector<std::vector<char>>& matrix) {
-        try {
-            for (const auto& row : matrix) {
-                std::lock_guard<std::mutex> guard(mtx);
-                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 5);
-                for (char pixel : row) {
-                    std::cout << pixel;
-                }
-            }
-        }
-        catch (const std::exception& e) {
-            std::cerr << "Exception occurred while printing matrix: " << e.what() << std::endl;
-        }
-    }
-
+    // Function to simulate raindrop animation
     void simulateRaindrop(int raindropColumn) {
         try {
             std::vector<std::vector<char>> matrix(MATRIX_HEIGHT, std::vector<char>(MATRIX_WIDTH, ' '));
@@ -58,6 +46,44 @@ namespace MatrixFall {
         catch (const std::exception& e) {
             std::cerr << "Exception occurred during raindrop simulation: " << e.what() << std::endl;
         }
+    }
+
+    // Function to print the matrix with raindrops
+    void printMatrixWithRaindrop(const std::vector<std::vector<char>>& matrix) {
+        try {
+            for (const auto& row : matrix) {
+                std::lock_guard<std::mutex> guard(mtx);
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 5);
+                for (char pixel : row) {
+                    std::cout << pixel;
+                }
+            }
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Exception occurred while printing matrix: " << e.what() << std::endl;
+        }
+    }
+
+    // Function to simulate raindrops using threads
+    void simulateRaindrops() {
+        std::thread raindrops[NUM_DROPS];
+
+        for (int i = 0; i < NUM_DROPS; ++i) {
+            int raindropColumn = rand() % MATRIX_WIDTH;
+            raindrops[i] = std::thread(simulateRaindrop, raindropColumn);
+        }
+
+        for (int i = 0; i < NUM_DROPS; ++i) {
+            raindrops[i].join();
+        }
+    }
+
+    // Function to call all functions in the namespace
+    void runAllFunctions() {
+        char randomChar = getRandomChar();
+        std::vector<std::vector<char>> matrix(MATRIX_HEIGHT, std::vector<char>(MATRIX_WIDTH, 'X'));
+        printMatrixWithRaindrop(matrix);
+        simulateRaindrops();
     }
 
 } // namespace MatrixFall

@@ -11,7 +11,7 @@ namespace MatrixRainTest {
     void testGetRandomChar();
     void testPrintMatrixWithRaindrop();
     void testSimulateRaindrop();
-
+    void runAllTests();
 } // namespace MatrixRainTest
 
 #endif // MATRIX_RAIN_TEST_H

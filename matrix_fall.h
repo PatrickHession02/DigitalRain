@@ -13,7 +13,7 @@ namespace MatrixFall {
     char getRandomChar();
     void printMatrixWithRaindrop(const std::vector<std::vector<char>>& matrix);
     void simulateRaindrop(int raindropColumn);
-
+    void runAllFunctions();
 } // namespace MatrixFall
 
 #endif // MATRIX_FALL_H
